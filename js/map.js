@@ -15,17 +15,17 @@ var CartoDB_Voyager = L.tileLayer(
 	maxZoom: 20
 });
 
-// CartoDB_Voyager.addTo(map);
+CartoDB_Voyager.addTo(map);
 
-var MapboxCoffe = L.tileLayer(
-	'https://api.mapbox.com/styles/v1/guillermodangelo/cll6q34o700k101ql6nurglv0/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoiZ3VpbGxlcm1vZGFuZ2VsbyIsImEiOiJjbGJkd2Q0MWMwNWlzM25tZnM3enkwcm4xIn0.v1NSQl2NjA8mdcFdmMZmxQ', {
-	maxZoom: 18,
-	attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
-	'<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
-	'Imagery © <a href="http://mapbox.com">Mapbox</a>',
-})
+// var MapboxCoffe = L.tileLayer(
+// 	'https://api.mapbox.com/styles/v1/guillermodangelo/cll6q34o700k101ql6nurglv0/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoiZ3VpbGxlcm1vZGFuZ2VsbyIsImEiOiJjbGJkd2Q0MWMwNWlzM25tZnM3enkwcm4xIn0.v1NSQl2NjA8mdcFdmMZmxQ', {
+// 	maxZoom: 18,
+// 	attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
+// 	'<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
+// 	'Imagery © <a href="http://mapbox.com">Mapbox</a>',
+// })
 
-MapboxCoffe.addTo(map);
+/* MapboxCoffe.addTo(map);
 
 var baseMaps = {
 	"Voyager": CartoDB_Voyager,
@@ -40,7 +40,7 @@ baseMaps, overlayMaps, {
 	collapsed: true
 });
 
-layerControl.addTo(map);
+layerControl.addTo(map); */
 
 function pointStyle(feature) {
 	return {
@@ -59,15 +59,44 @@ var coffeeBean = L.icon({
 	iconSize: [18, 18]
 });
 
-const cafes = L.geoJson(cafes_geo, {
-pointToLayer: function(feature, latlng) {
-	var marker = L.marker(latlng, {
-		icon: coffeeBean
-	});
 
-	var props = feature.properties;
-	marker.bindPopup('<h3>' + props.nombre + '</h3><p>' + props.direccion + '</p>');
-	return marker;
-},
-style: pointStyle
-}).addTo(map);
+function addGeoJsonLayerWithClustering(data) {
+	var markers = L.markerClusterGroup({
+		showCoverageOnHover: false,
+		maxClusterRadius: 10
+	});
+	var geoJsonLayer = L.geoJson(data,  {
+		pointToLayer: function(feature, latlng) {
+			var marker = L.marker(latlng, {
+				icon: coffeeBean
+			});
+		
+			var props = feature.properties;
+			var popupContent = '<h3>' + props.nombre
+			 + '</h3><p>' + props.direccion + '</p>'
+			 + "</b><a href=" + 'https://www.instagram.com/cafes.uy/' + 
+			 " target=\"_blank\">Fuente</a>";
+			marker.bindPopup(popupContent);
+			return marker;
+		},
+		style: pointStyle
+		});
+	markers.addLayer(geoJsonLayer);
+    map.addLayer(markers);
+};
+
+addGeoJsonLayerWithClustering(cafes_geo);
+
+// const cafes = L.geoJson(cafes_geo, {
+// pointToLayer: function(feature, latlng) {
+// 	var marker = L.marker(latlng, {
+// 		icon: coffeeBean
+// 	});
+
+// 	var props = feature.properties;
+// 	marker.bindPopup('<h3>' + props.nombre + '</h3><p>' + props.direccion + '</p>');
+// 	return marker;
+// },
+// style: pointStyle
+// }).addTo(map);
+
